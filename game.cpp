@@ -50,7 +50,6 @@ int main()
 
 
 
-
     // Update
     while (window.isOpen())
     {
