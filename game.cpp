@@ -19,6 +19,9 @@ bool heroIdle = true;
 // Gestion de l'attaque à l'épée
 bool needResetAnim = false;
 
+//tableau représentant la map
+int levelLoaded[450];// 450 = 25 * 18
+
 /* exemple de cube pout tester les collision
 RectangleShape cube(Vector2f(SPRITE_SIZE, SPRITE_SIZE));
 FloatRect cubeHitBox;
@@ -49,33 +52,14 @@ int main()
     */
 
 
-    //Tableau représentant notre map, 25 collones, 18 lignes
-    
-    const int level[] =
-    {
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        2, 0, 0, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1,
-        0, 0, 0, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1,
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1,
-        0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 1, 1, 3, 3, 3, 1, 1, 1,
-        1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 1, 1, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 1, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    };
-
+    //cgargement map depuis un fichier
+    ifstream ifs("resources/map/map1.txt");
+    // permet de récupérer tout les charactère a stocké
+    string content((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+    cout << "map chargé" << endl << content << endl;
     //instance de map + chargement 
     Map map;
-    if (!map.load("resources/tiles/tileset.png", Vector2u(SPRITE_SIZE, SPRITE_SIZE), level, COL_COUNT, ROW_COUNT));
+    //if (!map.load("resources/tiles/tileset.png", Vector2u(SPRITE_SIZE, SPRITE_SIZE), level, COL_COUNT, ROW_COUNT));
         
 
 
