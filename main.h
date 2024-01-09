@@ -9,6 +9,7 @@
 #include <utility>
 #include <stdlib.h>
 #include "input.h"
+#include "map.h"
 
 
 // contstante du programme
