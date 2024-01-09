@@ -2,34 +2,36 @@
 #include "main.h"
 
 // Variables globales
+#pragma region Global Variable
 RenderWindow window;
-Input input;
+
 // Préparation affichage personnage 2D
 Texture heroTexture;
 Sprite heroSprite;
+
+
 // enum des actions / directions
+Input input;
 enum Dir { Down, Right, Up, Left, Down_Atk, Right_Atk, Up_Atk, Left_Atk };
+
 // Définir l'animation (la ligne) à jouer
-// x = lignes & y = col
-Vector2i heroAnim(0, Down);
-// Timer / clock
-Clock heroAnimClock;
-// bool le perso est il à l'arrêt ?
-bool heroIdle = true;
-// Gestion de l'attaque à l'épée
-bool needResetAnim = false;
+Vector2i heroAnim(0, Down); 
+Clock heroAnimClock; // Timer / clock
+bool heroIdle = true; // bool le perso est il à l'arrêt ?
+bool needResetAnim = false; // Gestion de l'attaque à l'épée
 
-//tableau représentant la map
-int levelLoaded[450];// 450 = 25 * 18
 
-/* exemple de cube pout tester les collision
-RectangleShape cube(Vector2f(SPRITE_SIZE, SPRITE_SIZE));
-FloatRect cubeHitBox;
-//hit box du hero
-FloatRect heroHitBox;
-//random cube position
-int nbCube = 0;
-*/
+//map
+int levelLoaded[450]; // tableau représentant la map -> 450 = 25 * 18 
+
+
+// collision de la map
+int levelLoadedCollision[450]; //array for the collision
+
+#pragma endregion
+
+
+
 
 // Fonction main, point de départ du programme
 int main()
@@ -46,10 +48,8 @@ int main()
     // On découpe pour afficher 1 case de 32x32 px
     heroSprite.setTextureRect(IntRect(heroAnim.x * SPRITE_SIZE, heroAnim.y * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE));
 
-    /* cube collision
-    cube.setFillColor(Color::Green);
-    cube.setPosition(300, 200);
-    */
+    
+
 
 
     //cgargement map depuis un fichier
@@ -57,10 +57,41 @@ int main()
     // permet de récupérer tout les charactère a stocké
     string content((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
     cout << "map chargé" << endl << content << endl;
+
+    // decouple de la chaine en char
+    auto exploded = explode(content, ' ');
+    // boucler sur chaque char, le convertir en nt, le stocket dans le tableau de int
+    for (int i = 0; i < 450 && i < exploded.size(); i++)
+    {
+        // stoi = convertir string en int
+        levelLoaded[i] = stoi(exploded[i]);
+    }     
+
+
+
+
+    //chargement des collisoin de la map depuis le fichier collision
+    ifstream ifsCol("resources/map/map1-colision.txt");
+    // permet de récupérer tout les charactère a stocké
+    string contentCol((istreambuf_iterator<char>(ifsCol)), istreambuf_iterator<char>());
+    cout << "map chargé collision" << endl << contentCol << endl;
+
+    // decouple de la chaine en char
+    auto explodedCol = explode(contentCol, ' ');
+    // boucler sur chaque char, le convertir en nt, le stocket dans le tableau de int
+    for (int i = 0; i < 450 && i < explodedCol.size(); i++)
+    {
+        // stoi = convertir string en int
+        levelLoadedCollision[i] = stoi(explodedCol[i]);
+    }
+
+
+
     //instance de map + chargement 
     Map map;
-    //if (!map.load("resources/tiles/tileset.png", Vector2u(SPRITE_SIZE, SPRITE_SIZE), level, COL_COUNT, ROW_COUNT));
-        
+    if (!map.load("resources/tiles/tileset.png", Vector2u(SPRITE_SIZE, SPRITE_SIZE), levelLoaded, COL_COUNT, ROW_COUNT));
+
+
 
 
 
@@ -88,13 +119,13 @@ int main()
         window.draw(map);
         window.draw(heroSprite);
         
-        //window.draw(cube);
+        
 
         // Dessiner à l'écran tous les éléments
         window.display();
 
 
-        //CheckCollisions();
+       
 
     }
 
@@ -182,25 +213,17 @@ void AnimPlayer()
 }
 
 
-/*
-void CheckCollisions()
+vector<string> explode(string const& s, char delim)
+
 {
+    vector<string> result;
+    istringstream iss(s);
 
-    cubeHitBox = cube.getGlobalBounds();
-    heroHitBox = heroSprite.getGlobalBounds();
-
-    // if both collider interact
-    if (heroHitBox.intersects(cubeHitBox))
+    for (string token; getline(iss, token, delim); )
     {
-        cout << "ksdflds" << endl;
-        cube.setPosition
-        (
-            rand() % WIN_WIDTH - SPRITE_SIZE,
-            rand() % WIN_HEIGHT - SPRITE_SIZE
-        );
-
-        nbCube++;
-        cout << "ombre de cube récupéré =" << nbCube << endl;
+        result.push_back(move(token));
     }
+    return result;
 }
-*/
+
+

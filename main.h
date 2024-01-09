@@ -1,32 +1,28 @@
-// include
+﻿// Includes
 #include <iostream>
 #include <SFML/Graphics.hpp>
-
 #include <fstream>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <utility>
-#include <stdlib.h>
+#include <stdlib.h> 
 #include "input.h"
 #include "map.h"
 
+// Constantes du programme
+const int WIN_WIDTH = 800; // 25 tiles de 32 px
+const int WIN_HEIGHT = 576; // 18 tiles de 32 px
+const int SPRITE_SIZE = 32; // On a des sprites de 32x32 pixels
+const int WALK_SPEED = 2; // Vitesse de d�placement du perso
+const int COL_COUNT = 25; // Nombre de cases en largeur (col)
+const int ROW_COUNT = 18; // Nombre de cases en lignes (row)
 
-// contstante du programme
-const int WIN_WIDTH = 800; // 25 tuiles de 32 pixels
-const int WIN_HEIGHT = 576; // 18 tuiles de 32 pixels
-const int SPRITE_SIZE = 32; // sprite de 32px
-const int WALK_SPEED = 2;
-const int COL_COUNT = 25; // nombre de case en largeur
-const int ROW_COUNT = 18;// nombre de case en ligne
-
-// namespace
+// Namespaces
 using namespace sf;
 using namespace std;
 
-// Prototype
+// Prototypes
 void CheckBtn();
 void AnimPlayer();
-
-
-//void CheckCollisions();
+vector<string> explode(string const& s, char delim);
