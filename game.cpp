@@ -27,6 +27,9 @@ int levelLoaded[450]; // tableau représentant la map -> 450 = 25 * 18
 
 // collision de la map
 int levelLoadedCollision[450]; //array for the collision
+// pour debug collision
+RectangleShape rect[450];
+
 
 #pragma endregion
 
@@ -74,7 +77,7 @@ int main()
     ifstream ifsCol("resources/map/map1-colision.txt");
     // permet de récupérer tout les charactère a stocké
     string contentCol((istreambuf_iterator<char>(ifsCol)), istreambuf_iterator<char>());
-    cout << "map chargé collision" << endl << contentCol << endl;
+    cout << "map charge collision" << endl << contentCol << endl;
 
     // decouple de la chaine en char
     auto explodedCol = explode(contentCol, ' ');
@@ -118,7 +121,28 @@ int main()
        
         window.draw(map);
         window.draw(heroSprite);
+
+
         
+
+        // debug visualy collision
+
+        for (unsigned int j = 0; j < 18; ++j)
+        {
+            for (unsigned int i = 0; i < 25; i++)
+            {
+                if (levelLoadedCollision[(i + j * 25)] == 1) 
+                {
+                    Vector2f pos = Vector2f(i * SPRITE_SIZE, j * SPRITE_SIZE);
+                    rect[(i + j * 25)].setPosition(pos);
+                    rect[(i + j * 25)].setSize(Vector2f(SPRITE_SIZE, SPRITE_SIZE));
+                    rect[(i + j * 25)].setFillColor(Color(250, 0, 0, 100));
+                    window.draw(rect[(i + j * 25)]);
+                }
+            }
+        }
+
+        // end of the debug
         
 
         // Dessiner à l'écran tous les éléments
