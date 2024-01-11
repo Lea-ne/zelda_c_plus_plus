@@ -19,6 +19,7 @@ const int SPRITE_SIZE = 32; // On a des sprites de 32x32 pixels
 const int WALK_SPEED = 2; // Vitesse de d�placement du perso
 const int COL_COUNT = 25; // Nombre de cases en largeur (col)
 const int ROW_COUNT = 18; // Nombre de cases en lignes (row)
+const int BULLET_SPEED = 4;
 
 // Namespaces
 using namespace sf;
@@ -28,4 +29,8 @@ using namespace std;
 void CheckBtn();
 void AnimPlayer();
 vector<string> explode(string const& s, char delim);
+void HandleBullet();
+void addPoint();
+void windowDraw();
+
 
