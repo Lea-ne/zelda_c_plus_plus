@@ -32,6 +32,9 @@ RectangleShape rect[450];
 bool canShowDebugCollision = false;
 
 
+Texture slimeTexture;
+Sprite spriteSlime;
+
 #pragma endregion
 
 
@@ -45,7 +48,7 @@ int main()
     window.setVerticalSyncEnabled(true);
 
     // Chargement du visuel du heros
-    if (!heroTexture.loadFromFile("resources/sprite/hero_sheet.png"))
+    if (!heroTexture.loadFromFile("resources/hero/hero_sheet.png"))
         cout << "Erreur chargement texture héros" << endl;
     // On applique la texture à notre Sprite
     heroSprite.setTexture(heroTexture);
@@ -53,6 +56,18 @@ int main()
     heroSprite.setTextureRect(IntRect(heroAnim.x * SPRITE_SIZE, heroAnim.y * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE));
 
     
+    //monstree
+    if (!slimeTexture.loadFromFile("resources/monster/slime.png")) {
+        std::cout << "Erreur chargement texture monstre" << std::endl;
+    }
+
+    spriteSlime.setTexture(slimeTexture);
+    spriteSlime.setTextureRect(sf::IntRect(0, 0, SPRITE_SIZE, SPRITE_SIZE));
+    spriteSlime.setPosition(5 * SPRITE_SIZE, 5 * SPRITE_SIZE);
+    spriteSlime.setScale(0.6f, 0.6f);
+
+
+
 
 
     // Chargement map
@@ -66,7 +81,7 @@ int main()
     goToMap1.setPosition(SPRITE_SIZE * 6, SPRITE_SIZE * 17);
     
 
-
+    
 
 
 
@@ -93,6 +108,7 @@ int main()
         window.draw(heroSprite);
         window.draw(goToMap2);
         window.draw(goToMap1);
+        window.draw(spriteSlime);
 
 
         // Pour débug visuellement les collisions de la map

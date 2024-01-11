@@ -1,4 +1,5 @@
-﻿// Includes
+﻿// main.h
+// Includes
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <fstream>
@@ -27,3 +28,4 @@ using namespace std;
 void CheckBtn();
 void AnimPlayer();
 vector<string> explode(string const& s, char delim);
+
