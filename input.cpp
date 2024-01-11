@@ -4,7 +4,7 @@
 
 Input::Input()
 {
-	button.Left = button.Right = button.Up = button.Down = button.Attack = button.Escape = false;
+	button.Left = button.Right = button.Up = button.Down = button.Attack = button.Escape = button.Space = false;
 
 }
 
@@ -46,6 +46,9 @@ void Input::InputHandler(Event event, RenderWindow& window)
         case Keyboard::Escape:
             button.Escape = true;
             break;
+        case Keyboard::Space:
+            button.Space = true;
+            break;
 
         default:
             break;
@@ -72,6 +75,9 @@ void Input::InputHandler(Event event, RenderWindow& window)
             break;
         case Keyboard::Escape:
             button.Escape = false;
+            break;
+        case Keyboard::Space:
+            button.Space = false;
             break;
 
         default:

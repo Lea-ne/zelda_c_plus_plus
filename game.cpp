@@ -7,7 +7,6 @@ RenderWindow window;
 
 // Préparation affichage personnage 2D
 Texture heroTexture;
-Sprite heroSprite;
 
 
 // enum des actions / directions
@@ -29,6 +28,8 @@ int levelLoaded[450]; // tableau représentant la map -> 450 = 25 * 18
 int levelLoadedCollision[450]; //array for the collision
 // pour debug collision
 RectangleShape rect[450];
+
+bool canShowDebugCollision = false;
 
 
 #pragma endregion
@@ -54,55 +55,25 @@ int main()
     
 
 
+    // Chargement map
+    UpdateMap();
 
-    //cgargement map depuis un fichier
-    ifstream ifs("resources/map/map1.txt");
-    // permet de récupérer tout les charactère a stocké
-    string content((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
-    cout << "map chargé" << endl << content << endl;
-
-    // decouple de la chaine en char
-    auto exploded = explode(content, ' ');
-    // boucler sur chaque char, le convertir en nt, le stocket dans le tableau de int
-    for (int i = 0; i < 450 && i < exploded.size(); i++)
-    {
-        // stoi = convertir string en int
-        levelLoaded[i] = stoi(exploded[i]);
-    }     
-
-
-
-
-    //chargement des collisoin de la map depuis le fichier collision
-    ifstream ifsCol("resources/map/map1-colision.txt");
-    // permet de récupérer tout les charactère a stocké
-    string contentCol((istreambuf_iterator<char>(ifsCol)), istreambuf_iterator<char>());
-    cout << "map charge collision" << endl << contentCol << endl;
-
-    // decouple de la chaine en char
-    auto explodedCol = explode(contentCol, ' ');
-    // boucler sur chaque char, le convertir en nt, le stocket dans le tableau de int
-    for (int i = 0; i < 450 && i < explodedCol.size(); i++)
-    {
-        // stoi = convertir string en int
-        levelLoadedCollision[i] = stoi(explodedCol[i]);
-    }
-
-
-
-    //instance de map + chargement 
-    Map map;
-    if (!map.load("resources/tiles/tileset.png", Vector2u(SPRITE_SIZE, SPRITE_SIZE), levelLoaded, COL_COUNT, ROW_COUNT));
-
+    // Portail vers map 2
+    goToMap2.setFillColor(Color(250, 0, 0, 100));
+    goToMap2.setPosition(SPRITE_SIZE * 6, 0);
+    // Portail vers map 1
+    goToMap1.setFillColor(Color(250, 0, 0, 100));
+    goToMap1.setPosition(SPRITE_SIZE * 6, SPRITE_SIZE * 17);
+    
 
 
 
 
 
     // Update
-    while (window.isOpen())
+   while (window.isOpen())
     {
-        Event event;
+        Event event; 
         // On boucle sur les événements
         while (window.pollEvent(event))
         {
@@ -113,79 +84,121 @@ int main()
         CheckBtn();
         // Animation du perso
         AnimPlayer();
-
+        
         // Couleur de la fenêtre en noir
-        window.clear(Color::Yellow);
+        window.clear(Color::Black);
 
         // C'est ici que l'on dessine les éléments du jeu
-       
-        window.draw(map);
+        window.draw(mapInstance);
         window.draw(heroSprite);
+        window.draw(goToMap2);
+        window.draw(goToMap1);
 
 
-        
-
-        // debug visualy collision
-
-        for (unsigned int j = 0; j < 18; ++j)
-        {
-            for (unsigned int i = 0; i < 25; i++)
+        // Pour débug visuellement les collisions de la map
+        for (unsigned int j = 0; j < ROW_COUNT; ++j)
+        { // On boucle sur chaque ligne et col
+            for (unsigned int i = 0; i < COL_COUNT; ++i)
             {
-                if (levelLoadedCollision[(i + j * 25)] == 1) 
+                if (levelLoadedCollision[(i + j * COL_COUNT)] == 1)
                 {
                     Vector2f pos = Vector2f(i * SPRITE_SIZE, j * SPRITE_SIZE);
-                    rect[(i + j * 25)].setPosition(pos);
-                    rect[(i + j * 25)].setSize(Vector2f(SPRITE_SIZE, SPRITE_SIZE));
-                    rect[(i + j * 25)].setFillColor(Color(250, 0, 0, 100));
-                    window.draw(rect[(i + j * 25)]);
+                    rect[(i + j * COL_COUNT)].setPosition(pos);
+                    rect[(i + j * COL_COUNT)].setSize(Vector2f(SPRITE_SIZE, SPRITE_SIZE));
+                    rect[(i + j * COL_COUNT)].setFillColor(Color(250, 0, 0, 100));
+                    if(canShowDebugCollision)
+                        window.draw(rect[(i + j * COL_COUNT)]);
                 }
             }
         }
+        // Fin débug collisions
 
-        // end of the debug
-        
+        // Simple collisions
+        SimpleCollisions();
 
         // Dessiner à l'écran tous les éléments
         window.display();
 
-
-       
-
     }
 
     // Fin du programme
-    return 0;
+   return 0;
 }
 
 
 void CheckBtn()
 {
+
+    int hPosX = round(heroSprite.getPosition().x / SPRITE_SIZE);
+    int hPosY = round(heroSprite.getPosition().y / SPRITE_SIZE);
+    
+    if (canShowDebugCollision)
+    {
+        cout << levelLoaded[(hPosX + hPosY * COL_COUNT)] << endl;
+        cout << hPosX << " , " << hPosY << endl;
+    }
+
+
     if (!needResetAnim) // Si pas d'ttaque en cours
     {
         if (input.GetButton().Left == true)
         {
             heroAnim.y = Left;
-            heroSprite.move(-WALK_SPEED, 0);
+
+            //verification si a notre gauche on a une case solide ou pas
+            hPosX = round((heroSprite.getPosition().x - (WALK_SPEED) * 3) / SPRITE_SIZE);
+            if (levelLoadedCollision[hPosX + hPosY * COL_COUNT] == 0 && hPosY > -1)
+            {
+                // on se déplacce vers la gauche
+                heroSprite.move(-WALK_SPEED, 0);
+            }
             heroIdle = false;
         }
+
+
         else if (input.GetButton().Right == true)
         {
             heroAnim.y = Right;
-            heroSprite.move(WALK_SPEED, 0);
+
+            hPosX = round((heroSprite.getPosition().x + (WALK_SPEED) * 3) / SPRITE_SIZE);
+            if (levelLoadedCollision[hPosX + hPosY * COL_COUNT] == 0 && hPosY < COL_COUNT)
+            {
+                // on se déplacce vers la droite
+                heroSprite.move(WALK_SPEED, 0);
+            }
+            
             heroIdle = false;
         }
+
+
         else if (input.GetButton().Up == true)
         {
             heroAnim.y = Up;
-            heroSprite.move(0, -WALK_SPEED);
+            hPosY = round((heroSprite.getPosition().y - (WALK_SPEED) * 2.5) / SPRITE_SIZE);
+            if (levelLoadedCollision[hPosX + hPosY * COL_COUNT] == 0 && hPosY > -1)
+            {
+                // on se déplacce vers la droite
+                heroSprite.move(0, -WALK_SPEED);
+            }
+            
             heroIdle = false;
         }
+
+
         else if (input.GetButton().Down == true)
         {
             heroAnim.y = Down;
-            heroSprite.move(0, WALK_SPEED);
+            hPosY = round((heroSprite.getPosition().y + (WALK_SPEED) * 4) / SPRITE_SIZE);
+            if (levelLoadedCollision[hPosX + hPosY * COL_COUNT] == 0 && hPosY < ROW_COUNT)
+            {
+                // on se déplacce vers la droite
+                heroSprite.move(0, WALK_SPEED);
+            }
+            
             heroIdle = false;
         }
+
+
         else // Perso en IDLE
         {
             heroIdle = true;
@@ -203,6 +216,9 @@ void CheckBtn()
     {
         window.close();
     }
+
+    canShowDebugCollision = input.GetButton().Space;
+
 }
 
 void AnimPlayer()
@@ -251,3 +267,45 @@ vector<string> explode(string const& s, char delim)
 }
 
 
+void UpdateMap() {
+
+
+    //cgargement map depuis un fichier
+    ifstream ifs("resources/map/map" + to_string(actualMap) + ".txt");
+    // permet de récupérer tout les charactère a stocké
+    string content((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+    cout << "map chargé" << endl << content << endl;
+
+    // decouple de la chaine en char
+    auto exploded = explode(content, ' ');
+    // boucler sur chaque char, le convertir en nt, le stocket dans le tableau de int
+    for (int i = 0; i < 450 && i < exploded.size(); i++)
+    {
+        // stoi = convertir string en int
+        levelLoaded[i] = stoi(exploded[i]);
+    }
+
+
+
+
+    //chargement des collisoin de la map depuis le fichier collision
+    ifstream ifsCol("resources/map/map" + to_string(actualMap) + "-colision.txt");
+    // permet de récupérer tout les charactère a stocké
+    string contentCol((istreambuf_iterator<char>(ifsCol)), istreambuf_iterator<char>());
+    cout << "map charge collision" << endl << contentCol << endl;
+
+    // decouple de la chaine en char
+    auto explodedCol = explode(contentCol, ' ');
+    // boucler sur chaque char, le convertir en nt, le stocket dans le tableau de int
+    for (int i = 0; i < 450 && i < explodedCol.size(); i++)
+    {
+        // stoi = convertir string en int
+        levelLoadedCollision[i] = stoi(explodedCol[i]);
+    }
+
+
+
+    //instance de map + chargement 
+    if (!mapInstance.load("resources/tiles/tileset.png", Vector2u(SPRITE_SIZE, SPRITE_SIZE), levelLoaded, COL_COUNT, ROW_COUNT));
+
+}

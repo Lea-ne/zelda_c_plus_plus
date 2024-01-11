@@ -9,6 +9,7 @@
 #include <stdlib.h> 
 #include "input.h"
 #include "map.h"
+#include "portal.h"
 
 // Constantes du programme
 const int WIN_WIDTH = 800; // 25 tiles de 32 px
