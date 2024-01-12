@@ -31,6 +31,7 @@ void CheckBtn();
 void AnimPlayer();
 vector<string> explode(string const& s, char delim);
 void HandleBullet();
+void HandleSword();
 void addPoint();
 void windowDraw();
 void HandleMonster();

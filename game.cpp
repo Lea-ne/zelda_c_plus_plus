@@ -47,6 +47,8 @@ Sprite arrowSprite;
 bool arrowActive = false;
 int arrowDir;
 Clock arrowClock;
+//sword
+bool swordActive = false;
 
 
 Text text;
@@ -171,6 +173,7 @@ int main()
         SimpleCollisions();
 
         HandleBullet();
+        HandleSword();
 
         addPoint();
 
@@ -273,6 +276,16 @@ void CheckBtn()
             // On passe de la ligne walk à la ligne atk sur la texture
             heroAnim.y += 4; // On descend de 4 lignes sur notre sprite sheet
             // Todo: Envoyer un projectile invisible avec durée de vie très très courte**
+
+            if (!swordActive)
+            {
+                swordActive = true;
+                arrowSprite.setPosition(heroSprite.getPosition().x + 16, heroSprite.getPosition().y + 16);
+                arrowSprite.setScale(0.75f, 0.75f);
+                arrowSprite.setOrigin(16, 16);
+                arrowDir = heroAnim.y;
+                arrowClock.restart();
+            }
 
         }
         if (input.GetButton().Magie == true)
@@ -457,6 +470,68 @@ void HandleBullet()
             score++;
         }
     }
+}
+
+void HandleSword() {
+
+    if (swordActive)
+    {
+        // dans quel direction ?
+        switch (arrowDir)
+        {
+        case Down_Atk:
+
+            arrowSprite.setRotation(270);
+            arrowSprite.move(0, BULLET_SPEED);
+            break;
+
+        case Up_Atk:
+
+            arrowSprite.setRotation(90);
+            arrowSprite.move(0, -BULLET_SPEED);
+            break;
+
+        case Left_Atk:
+
+            arrowSprite.setRotation(0);
+            arrowSprite.move(-BULLET_SPEED, 0);
+            break;
+
+        case Right_Atk:
+
+            arrowSprite.setRotation(180);
+            arrowSprite.move(BULLET_SPEED, 0);
+            break;
+        }
+
+        
+        // gerer lla réinitialisation
+
+        if (arrowClock.getElapsedTime().asSeconds() > 0.1f)
+        {
+            swordActive = false;
+        }
+
+        // gerer la collision entre la felche et le monstre
+
+        //hit box pour la fleche
+        FloatRect arrowHitBox;
+        arrowHitBox = arrowSprite.getGlobalBounds();
+
+        //hit box pour le monstres
+        FloatRect slimeHitBox;
+        slimeHitBox = spriteSlime.getGlobalBounds();
+
+
+        // on masque la felche et le monstre
+        if (arrowHitBox.intersects(slimeHitBox))
+        {
+            swordActive = false;
+            spriteSlime.setPosition(10000, 10000);
+            score++;
+        }
+    }
+        
 }
 
 // Ajouter un point
