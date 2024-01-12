@@ -34,11 +34,18 @@ bool canShowDebugCollision = false;
 
 Texture slimeTexture;
 Sprite spriteSlime;
+Vector2i monsterAnim(0, 0);
+Clock monsterClock;
+bool monsterDestroyed = false;
+
+
+
+
 
 Texture aTexture;
 Sprite arrowSprite;
 bool arrowActive = false;
-int arrawDir;
+int arrowDir;
 Clock arrowClock;
 
 
@@ -133,6 +140,8 @@ int main()
         CheckBtn();
         // Animation du perso
         AnimPlayer();
+
+        HandleMonster();
         
         // Couleur de la fenêtre en noir
         window.clear(Color::Black);
@@ -258,24 +267,30 @@ void CheckBtn()
 
         if (input.GetButton().Attack == true)
         {
-            // attaque épée
-
+            // Attaque à l'épée
             needResetAnim = true; // Après attaque, retourner sur anim walk
             heroAnim.x = 0; // Retourner à la col 0 (Jouer l'anim depuis le début)
             // On passe de la ligne walk à la ligne atk sur la texture
             heroAnim.y += 4; // On descend de 4 lignes sur notre sprite sheet
-        
-            // Attaque a distance
+            // Todo: Envoyer un projectile invisible avec durée de vie très très courte**
+
+        }
+        if (input.GetButton().Magie == true)
+        {
+            needResetAnim = true;
+            heroAnim.x = 0;
+            heroAnim.y += 4;
+
+            // Attaque à distance
             if (!arrowActive)
             {
                 arrowActive = true;
                 arrowSprite.setPosition(heroSprite.getPosition().x + 16, heroSprite.getPosition().y + 16);
                 arrowSprite.setScale(0.75f, 0.75f);
                 arrowSprite.setOrigin(16, 16);
-                arrawDir = heroAnim.y;
+                arrowDir = heroAnim.y;
                 arrowClock.restart();
             }
-        
         }
     }
 
@@ -383,7 +398,7 @@ void HandleBullet()
     if (arrowActive)
     {
         // dans quel direction ?
-        switch (arrawDir)
+        switch (arrowDir)
         {
         case Down_Atk:
 
@@ -463,5 +478,27 @@ void windowDraw()
 }
 
 
+void HandleMonster()
+{
+    if (!monsterDestroyed)
+    {
+        // Déplacement du mob
+        spriteSlime.move(MONSTER_SPEED, 0);
+        if (spriteSlime.getPosition().x > 600 || spriteSlime.getPosition().x < 100) MONSTER_SPEED *= -1;
 
-
+        // Animation du mob
+        spriteSlime.setTextureRect(IntRect(monsterAnim.x * SPRITE_SIZE, monsterAnim.y * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE));
+        if (monsterClock.getElapsedTime().asSeconds() > 0.2f)
+        {
+            if (monsterAnim.x * SPRITE_SIZE >= slimeTexture.getSize().x - SPRITE_SIZE)
+            {
+                monsterAnim.x = 0;
+            }
+            else
+            {
+                monsterAnim.x++;
+            }
+            monsterClock.restart();
+        }
+    }
+}

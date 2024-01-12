@@ -4,7 +4,7 @@
 
 Input::Input()
 {
-	button.Left = button.Right = button.Up = button.Down = button.Attack = button.Escape = button.Space = false;
+    button.Left = button.Right = button.Up = button.Down = button.Attack = button.Magie = button.Escape = false;
 
 }
 
@@ -86,7 +86,7 @@ void Input::InputHandler(Event event, RenderWindow& window)
     }
 
 
-    // for the mouse input
+    // Left click on the mouse
     if (event.type == Event::MouseButtonPressed)
     {
         if (event.mouseButton.button == Mouse::Left)
@@ -100,6 +100,22 @@ void Input::InputHandler(Event event, RenderWindow& window)
         if (event.mouseButton.button == Mouse::Left)
         {
             button.Attack = false;
+        }
+    }
+
+    // Right click on the mouse
+    if (event.type == Event::MouseButtonPressed)
+    {
+        if (event.mouseButton.button == Mouse::Right)
+        {
+            button.Magie = true;
+        }
+    }
+    if (event.type == Event::MouseButtonReleased)
+    {
+        if (event.mouseButton.button == Mouse::Right)
+        {
+            button.Magie = false;
         }
     }
 }

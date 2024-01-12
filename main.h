@@ -20,6 +20,7 @@ const int WALK_SPEED = 2; // Vitesse de d�placement du perso
 const int COL_COUNT = 25; // Nombre de cases en largeur (col)
 const int ROW_COUNT = 18; // Nombre de cases en lignes (row)
 const int BULLET_SPEED = 4;
+float MONSTER_SPEED = 0.3f; // Vitesse du mob
 
 // Namespaces
 using namespace sf;
@@ -32,5 +33,6 @@ vector<string> explode(string const& s, char delim);
 void HandleBullet();
 void addPoint();
 void windowDraw();
+void HandleMonster();
 
 
