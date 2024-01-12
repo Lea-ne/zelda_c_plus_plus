@@ -35,5 +35,6 @@ void HandleSword();
 void addPoint();
 void windowDraw();
 void HandleMonster();
+void Start();
 
 

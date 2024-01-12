@@ -55,6 +55,11 @@ Text text;
 Font font;
 int score = 0;
 
+Texture heartTexture;
+Sprite heartSprite[3] = {};
+int life = 3;
+bool isInvincible = false;
+Clock invincibleClock;
 
 
 #pragma endregion
@@ -65,65 +70,9 @@ int score = 0;
 // Fonction main, point de départ du programme
 int main()
 {
-    // Création d'une fenêtre type RenderWindow
-    window.create(VideoMode(WIN_WIDTH, WIN_HEIGHT, 32), "Mon jeu SFML", Style::Default);
-    window.setVerticalSyncEnabled(true);
-
-    // Chargement du visuel du heros
-    if (!heroTexture.loadFromFile("resources/hero/hero_sheet.png"))
-        cout << "Erreur chargement texture héros" << endl;
-    // On applique la texture à notre Sprite
-    heroSprite.setTexture(heroTexture);
-    // On découpe pour afficher 1 case de 32x32 px
-    heroSprite.setTextureRect(IntRect(heroAnim.x * SPRITE_SIZE, heroAnim.y * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE));
-
     
-    // définition du monstree
-    if (!slimeTexture.loadFromFile("resources/monster/slime.png")) {
-        std::cout << "Erreur chargement texture monstre" << std::endl;
-    }
-
-    spriteSlime.setTexture(slimeTexture);
-    spriteSlime.setTextureRect(sf::IntRect(0, 0, SPRITE_SIZE, SPRITE_SIZE));
-    spriteSlime.setPosition(5 * SPRITE_SIZE, 5 * SPRITE_SIZE);
-    spriteSlime.setScale(0.6f, 0.6f);
-
-
-    // définition de arrow
-    if (!aTexture.loadFromFile("resources/hero/arrow.png")) {
-        std::cout << "Erreur chargement texture arc" << std::endl;
-    }
-
-    arrowSprite.setTexture(aTexture);
-    arrowSprite.setTextureRect(sf::IntRect(0, 0, SPRITE_SIZE, SPRITE_SIZE));
-
-
-
-    // définition du texte
-    if (!font.loadFromFile("resources/font/poppins.ttf"))
-    {
-        cout << "Erreur chargement font" << endl;
-    }
-    text.setFont(font);
-    text.setCharacterSize(14);
-    text.setFillColor(Color::Black);
-    text.setPosition(10, 10);
-    text.setStyle(Text::Bold);
-
-
-
-
-    // Chargement map
-    UpdateMap();
-
-    // Portail vers map 2
-    goToMap2.setFillColor(Color(250, 0, 0, 100));
-    goToMap2.setPosition(SPRITE_SIZE * 6, 0);
-    // Portail vers map 1
-    goToMap1.setFillColor(Color(250, 0, 0, 100));
-    goToMap1.setPosition(SPRITE_SIZE * 6, SPRITE_SIZE * 17);
     
-
+    Start();
     
 
 
@@ -138,11 +87,10 @@ int main()
             // Gestion des inputs / events
             input.InputHandler(event, window);
         }
-        // Gestion des inputs
-        CheckBtn();
-        // Animation du perso
-        AnimPlayer();
 
+        // Gestion des inputs, annimation and monster(slime)
+        CheckBtn();
+        AnimPlayer();
         HandleMonster();
         
         // Couleur de la fenêtre en noir
@@ -169,16 +117,6 @@ int main()
         }
 
 
-        // Gérer les collision
-        SimpleCollisions();
-
-        HandleBullet();
-        HandleSword();
-
-        addPoint();
-
-
-
         // Dessiner à l'écran tous les éléments
         window.display();
 
@@ -187,6 +125,9 @@ int main()
     // Fin du programme
    return 0;
 }
+
+
+
 
 
 void CheckBtn()
@@ -507,7 +448,7 @@ void HandleSword() {
         
         // gerer lla réinitialisation
 
-        if (arrowClock.getElapsedTime().asSeconds() > 0.1f)
+        if (arrowClock.getElapsedTime().asSeconds() > 0.08f)
         {
             swordActive = false;
         }
@@ -550,6 +491,16 @@ void windowDraw()
     window.draw(goToMap1);
     window.draw(spriteSlime);
     window.draw(text);
+
+    for (int i = 0; i < life; i++)
+    {
+        window.draw(heartSprite[i]);
+    }
+
+    SimpleCollisions();
+    HandleBullet();
+    HandleSword();
+    addPoint();
 }
 
 
@@ -575,5 +526,101 @@ void HandleMonster()
             }
             monsterClock.restart();
         }
+
+        FloatRect heroHitBox = heroSprite.getGlobalBounds();
+        FloatRect slimeHitBox = spriteSlime.getGlobalBounds();
+
+        if (heroHitBox.intersects(slimeHitBox) && !isInvincible)
+        {
+            // if we are invincible we take damage
+            isInvincible = true;
+            life--;
+            invincibleClock.restart();
+        }
+
+        if (invincibleClock.getElapsedTime().asSeconds() > 2 && isInvincible)
+        {
+            isInvincible = false;
+        }
     }
+}
+
+
+void Start()
+{
+    // Création d'une fenêtre type RenderWindow
+    window.create(VideoMode(WIN_WIDTH, WIN_HEIGHT, 32), "Mon jeu SFML", Style::Default);
+    window.setVerticalSyncEnabled(true);
+
+    // Visual texture of hero
+    if (!heroTexture.loadFromFile("resources/hero/hero_sheet.png"))
+    {
+        cout << "Erreur chargement texture héros" << endl;
+    }
+    // Visual texture of slime
+    if (!slimeTexture.loadFromFile("resources/monster/slime.png")) {
+        std::cout << "Erreur chargement texture monstre" << std::endl;
+    }
+    // Visual texture of arrow
+    if (!aTexture.loadFromFile("resources/hero/arrow.png")) {
+        std::cout << "Erreur chargement texture arc" << std::endl;
+    }
+    //Visual texture of font
+    if (!font.loadFromFile("resources/font/poppins.ttf"))
+    {
+        cout << "Erreur chargement font" << endl;
+    }
+    // visual texture of heart
+    if (!heartTexture.loadFromFile("resources/hero/heart.png"))
+    {
+        cout << "Erreur chargement texture coeur" << endl;
+    }
+
+
+
+    // visual definition of hero
+    heroSprite.setTexture(heroTexture);
+    heroSprite.setTextureRect(IntRect(heroAnim.x * SPRITE_SIZE, heroAnim.y * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE)); // On découpe pour afficher 1 case de 32x32 px
+
+
+    // visual definition of monster
+    spriteSlime.setTexture(slimeTexture);
+    spriteSlime.setTextureRect(sf::IntRect(0, 0, SPRITE_SIZE, SPRITE_SIZE));
+    spriteSlime.setPosition(5 * SPRITE_SIZE, 5 * SPRITE_SIZE);
+    spriteSlime.setScale(0.6f, 0.6f);
+
+
+    // visual definition of arrow
+    arrowSprite.setTexture(aTexture);
+    arrowSprite.setTextureRect(sf::IntRect(0, 0, SPRITE_SIZE, SPRITE_SIZE));
+
+
+    // visual definition of text
+    text.setFont(font);
+    text.setCharacterSize(14);
+    text.setFillColor(Color::Black);
+    text.setPosition(10, 10);
+    text.setStyle(Text::Bold);
+
+
+    // Visual definition of the heart
+    for (int i = 0; i < 3; i++)
+    {
+        heartSprite[i].setTexture(heartTexture);
+        heartSprite[i].setColor(Color(255, 255, 255, 150));
+        heartSprite[i].setPosition(5 + (i * 35), 5);
+    }
+
+
+
+    // Loading the map
+    UpdateMap();
+
+    // Portal in map 2
+    goToMap2.setFillColor(Color(250, 0, 0, 100));
+    goToMap2.setPosition(SPRITE_SIZE * 6, 0);
+
+    // Portal in map 1
+    goToMap1.setFillColor(Color(250, 0, 0, 100));
+    goToMap1.setPosition(SPRITE_SIZE * 6, SPRITE_SIZE * 17);
 }
